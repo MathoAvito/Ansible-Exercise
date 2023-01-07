@@ -116,12 +116,12 @@ output "instance_2_ip" {
   value = aws_instance.ansible_host[1].public_ip
 }
 
+
 resource "local_file" "ec2_ips" {
   /* count = 2 */
   content  = join("\n", [aws_instance.ansible_host[0].public_ip, aws_instance.ansible_host[1].public_ip])
-  filename = "ec2_ips.txt"
+  filename = "/home/develeap/Documents/ansible_exercise/Ansible/hostsss"
 }
-
 
 
 
