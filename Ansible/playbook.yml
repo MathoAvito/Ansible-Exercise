@@ -1,0 +1,9 @@
+---
+- hosts: all
+  tasks:
+  - name: Install Apache web server
+    apt: pkg=apache2 state=present
+  - name: Copy index.html to web root
+    copy: src=index.html dest=/var/www/html/index.html
+  - name: Start Apache web server
+    service: name=apache2 state=started
