@@ -1,24 +1,31 @@
 provider "aws" {
-  region = "eu-west-1"
+  region = "eu-west-3"
 }
 
 data "aws_availability_zones" "available" {}
 
+/* data "aws_ec2_instance_state" "instance_status" {
+  instance_id = aws_instance.ansible_master.id
+} */
+
+
+
 locals {
   azs = data.aws_availability_zones.available.names
+  /* instance_status = data.aws_ec2_instance_state.instance_status */
 }
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
 }
 
 resource "aws_subnet" "main" {
-  count = 3
-  vpc_id = aws_vpc.main.id
-  cidr_block = "10.0.${count.index + 1}.0/24"
+  count                   = 3
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.${count.index + 1}.0/24"
   map_public_ip_on_launch = true
-  availability_zone = local.azs["${count.index}"]
+  availability_zone       = local.azs["${count.index}"]
 }
 
 resource "aws_internet_gateway" "main" {
@@ -30,7 +37,7 @@ resource "aws_route_table" "main" {
 }
 
 resource "aws_route_table_association" "main" {
-  count = 3
+  count          = 3
   subnet_id      = aws_subnet.main[count.index].id
   route_table_id = aws_route_table.main.id
 }
@@ -44,9 +51,9 @@ resource "aws_route" "main" {
 
 
 resource "aws_security_group" "allow_ssh_http" {
-  name = "allow_ssh_http"
+  name        = "allow_ssh_http"
   description = "Allow SSH and HTTP access"
-  vpc_id = aws_vpc.main.id
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port   = 22
@@ -71,27 +78,28 @@ resource "aws_security_group" "allow_ssh_http" {
 }
 
 resource "aws_instance" "ansible_host" {
-  count = 2
-  ami           = "ami-079bae937cca87cfd"
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.main["${count.index}"+1].id
-  key_name      = "ansible_key"
+  count           = 2
+  ami             = "ami-0da72130d53f06a73"
+  instance_type   = "t3a.micro"
+  subnet_id       = aws_subnet.main["${count.index}" + 1].id
+  key_name        = "matan_ansible"
   security_groups = [aws_security_group.allow_ssh_http.id]
 
   tags = {
-    Name = "ansible-host_${count.index+1}"
+    Name  = "ansible-host_${count.index + 1}"
+    Owner = "Matan Avital"
   }
 }
 
 
 
 resource "aws_instance" "ansible_master" {
-  ami           = "ami-079bae937cca87cfd"
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.main[1].id
+  ami                    = "ami-0090396774e8e756a"
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.main[1].id
   vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
-  key_name      = "ansible_key"
-  user_data = base64encode(<<EOF
+  key_name               = "matan_ansible"
+  /* user_data = base64encode(<<EOF
 #!/bin/bash
 
 sudo yum update -y
@@ -100,12 +108,80 @@ curl -kL https://bootstrap.pypa.io/get-pip.py | python3
 pip install ansible
 
 EOF
-)
+  ) */
   tags = {
-    Name = "ansible_master"
-    Environment = "dev"
+    Name  = "ansible_master"
+    Owner = "Matan Avital"
   }
 }
+
+/* resource "null_resource" "transfer_file" {
+
+  provisioner "remote-exec" {
+    connection {
+      host        = aws_instance.ansible_master.public_ip
+      user        = "ec2-user"
+      private_key = file("/home/develeap/.ssh/matan_ansible.pem")
+    }
+
+    inline = [
+      "scp -i /home/develeap/.ssh/matan_ansible.pem /home/develeap/Documents/ansible_exercise/Ansible root@${aws_instance.ansible_master.public_ip}:~/"
+    ]
+  }
+} */
+
+/* -i /home/develeap/.ssh/matan_ansible.pem /home/develeap/Documents/ansible_exercise/Ansible */
+
+
+/* 
+  provisioner "file" {
+    source      = "/home/develeap/Documents/ansible_exercise/Ansible/playbook.yml"
+    destination = "~/playbook.yaml"
+    
+
+    connection {
+      host        = aws_instance.ansible_master.public_ip
+      user        = "ec2-user"
+      private_key = file("/home/develeap/.ssh/matan_ansible.pem")
+    }
+  }
+} */
+
+/* resource "null_resource" "provision" {
+ 
+  provisioner "remote-exec" {
+    inline = ["chmod +w /etc/ansible"]
+
+    connection {
+      host        = aws_instance.ansible_master.public_ip
+      user        = "ec2-user"
+      private_key = file("/home/develeap/Downloads/ansible_key.pem")
+    }
+  }
+} */
+
+
+
+
+/* resource "local_file" "ansible_files" {
+  connection {
+    host        = aws_instance.ansible_master.public_ip
+    user        = "ec2-user"
+    private_key = file("/home/develeap/Downloads/ansible_key.pem")
+  } */
+
+/* provisioner "file" {
+    source      = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
+    destination = "/etc/ansible/hosts"
+  } */
+
+/* 
+  provisioner "file" {
+    source      = "/home/develeap/Documents/ansible_exercise/Ansible/index.html"
+    destination = "/var/www/html/index.html"
+  }
+} */
+
 
 
 output "instance_1_ip" {
@@ -118,9 +194,8 @@ output "instance_2_ip" {
 
 
 resource "local_file" "ec2_ips" {
-  /* count = 2 */
   content  = join("\n", [aws_instance.ansible_host[0].public_ip, aws_instance.ansible_host[1].public_ip])
-  filename = "/home/develeap/Documents/ansible_exercise/Ansible/hostsss"
+  filename = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
 }
 
 
@@ -143,11 +218,11 @@ resource "aws_iam_role" "ec2_ami_access" {
   })
 
   tags = {
-    tag-key = "tag-value"
+    Owner = "Matan Avital"
   }
 }
 resource "aws_iam_policy" "ami_access" {
-  name = "ami_access_policy"
+  name   = "ami_access_policy"
   policy = <<EOF
 {
   "Version": "2012-10-17",
