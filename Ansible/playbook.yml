@@ -1,9 +1,25 @@
 ---
 - hosts: all
   tasks:
-  - name: Install Apache web server
-    apt: pkg=apache2 state=present
-  - name: Copy index.html to web root
-    copy: src=index.html dest=/var/www/html/index.html
-  - name: Start Apache web server
-    service: name=apache2 state=started
+    - name: Create install directory
+      file:
+        state: directory
+        path: /var/www/html
+        mode: 0755
+
+    - name: Copy webpage from url
+      get_url:
+        url: https://raw.githubusercontent.com/MathoAvito/Ansible-Exercise/main/Webfile/index.html
+        dest: /var/www/html
+        mode: 0755
+
+    - name: install httpd
+      package:
+        name: "httpd"
+        state: present
+      register: httpdstatus
+
+    - name: httpd service start
+      service:
+        name: "httpd"
+        state: started

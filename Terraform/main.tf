@@ -95,7 +95,7 @@ resource "aws_instance" "ansible_host" {
 
 resource "aws_instance" "ansible_master" {
   ami                    = "ami-0090396774e8e756a"
-  instance_type          = "t2.micro"
+  instance_type          = "t3a.micro"
   subnet_id              = aws_subnet.main[1].id
   vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
   key_name               = "matan_ansible"
@@ -104,7 +104,49 @@ resource "aws_instance" "ansible_master" {
     Name  = "ansible_master"
     Owner = "Matan Avital"
   }
+
+  connection {
+    type     = "ssh"
+    user     = "ec2-user"
+    private_key = file("~/.ssh/matan_ansible.pem")
+    host     = aws_instance.ansible_master.public_ip
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+       "sudo mkdir ~/ansible",
+       "sudo chmod 777 ~/ansible",
+       "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",
+       "export ANSIBLE_CONFIG=/home/ec2-user/ansible/ansible.cfg"
+    ]
+  }
+
+  provisioner "file" {
+    source      = "/home/develeap/.ssh/matan_ansible.pem"
+    destination = "/home/ec2-user/.ssh/matan_ansible.pem"
+  }
+
+  provisioner "file" {
+    source      = "/home/develeap/Documents/ansible_exercise/Ansible/ansible.cfg"
+    destination = "/home/ec2-user/ansible/ansible.cfg"
+  }
+
+  provisioner "file" {
+    source      = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
+    destination = "/home/ec2-user/ansible/hosts"
+  }
+
+  provisioner "file" {
+    source      = "/home/develeap/Documents/ansible_exercise/Ansible/playbook.yml"
+    destination = "/home/ec2-user/ansible/playbook.yml"
+  }
 }
+
+
+
+
+
+
 
 
 output "instance_1_ip" {
