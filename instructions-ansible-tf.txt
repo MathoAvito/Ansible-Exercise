@@ -1,0 +1,10 @@
+Ansible Terraform AWS
+----------
+- Provision a network infrastructure with Terraform
+- Provision 3 ec2 instances (and anything it they need)
+    - One of the instances would be the Ansible Control Node, make sure to make it into one!
+    - The rest two are the Managed Nodes (Hosts)
+- Write your own:
+    - Inventory file with the IP adresse of the two Managed Nodes
+    - Ansible configuration file
+    - 

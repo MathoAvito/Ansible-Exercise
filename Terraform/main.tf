@@ -99,89 +99,12 @@ resource "aws_instance" "ansible_master" {
   subnet_id              = aws_subnet.main[1].id
   vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
   key_name               = "matan_ansible"
-  /* user_data = base64encode(<<EOF
-#!/bin/bash
-
-sudo yum update -y
-sudo yum install -y python3
-curl -kL https://bootstrap.pypa.io/get-pip.py | python3
-pip install ansible
-
-EOF
-  ) */
+  
   tags = {
     Name  = "ansible_master"
     Owner = "Matan Avital"
   }
 }
-
-/* resource "null_resource" "transfer_file" {
-
-  provisioner "remote-exec" {
-    connection {
-      host        = aws_instance.ansible_master.public_ip
-      user        = "ec2-user"
-      private_key = file("/home/develeap/.ssh/matan_ansible.pem")
-    }
-
-    inline = [
-      "scp -i /home/develeap/.ssh/matan_ansible.pem /home/develeap/Documents/ansible_exercise/Ansible root@${aws_instance.ansible_master.public_ip}:~/"
-    ]
-  }
-} */
-
-/* -i /home/develeap/.ssh/matan_ansible.pem /home/develeap/Documents/ansible_exercise/Ansible */
-
-
-/* 
-  provisioner "file" {
-    source      = "/home/develeap/Documents/ansible_exercise/Ansible/playbook.yml"
-    destination = "~/playbook.yaml"
-    
-
-    connection {
-      host        = aws_instance.ansible_master.public_ip
-      user        = "ec2-user"
-      private_key = file("/home/develeap/.ssh/matan_ansible.pem")
-    }
-  }
-} */
-
-/* resource "null_resource" "provision" {
- 
-  provisioner "remote-exec" {
-    inline = ["chmod +w /etc/ansible"]
-
-    connection {
-      host        = aws_instance.ansible_master.public_ip
-      user        = "ec2-user"
-      private_key = file("/home/develeap/Downloads/ansible_key.pem")
-    }
-  }
-} */
-
-
-
-
-/* resource "local_file" "ansible_files" {
-  connection {
-    host        = aws_instance.ansible_master.public_ip
-    user        = "ec2-user"
-    private_key = file("/home/develeap/Downloads/ansible_key.pem")
-  } */
-
-/* provisioner "file" {
-    source      = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
-    destination = "/etc/ansible/hosts"
-  } */
-
-/* 
-  provisioner "file" {
-    source      = "/home/develeap/Documents/ansible_exercise/Ansible/index.html"
-    destination = "/var/www/html/index.html"
-  }
-} */
-
 
 
 output "instance_1_ip" {
