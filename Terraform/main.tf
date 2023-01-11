@@ -142,13 +142,6 @@ resource "aws_instance" "ansible_master" {
   }
 }
 
-
-
-
-
-
-
-
 output "instance_1_ip" {
   value = aws_instance.ansible_host[0].public_ip
 }
