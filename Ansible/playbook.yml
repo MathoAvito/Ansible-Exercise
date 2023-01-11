@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Deploy a simple webpage
+  hosts: all
   tasks:
     - name: Create install directory
       file:
@@ -7,19 +8,19 @@
         path: /var/www/html
         mode: 0755
 
-    - name: Copy webpage from url
+    - name: Copy webpage from URL
       get_url:
         url: https://raw.githubusercontent.com/MathoAvito/Ansible-Exercise/main/Webfile/index.html
-        dest: /var/www/html
+        dest: /var/www/html/index.html
         mode: 0755
 
-    - name: install httpd
+    - name: install httpd package
       package:
         name: "httpd"
         state: present
-      register: httpdstatus
 
-    - name: httpd service start
+    - name: Start and enable httpd service
       service:
         name: "httpd"
         state: started
+        enabled: true
