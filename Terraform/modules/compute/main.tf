@@ -1,12 +1,10 @@
-
-
 resource "aws_instance" "ansible_host" {
-  count           = 2
+  count           = var.ansible_hosts
   ami             = "ami-0da72130d53f06a73"
   instance_type   = "t3a.micro"
-  subnet_id       = aws_subnet.main["${count.index}" + 1].id
+  subnet_id       = var.subnets["${count.index}" + 1].id
   key_name        = "matan_ansible"
-  security_groups = [aws_security_group.allow_ssh_http.id]
+  security_groups = [var.security_groups.id]
 
   tags = {
     Name  = "ansible-host_${count.index + 1}"
@@ -19,8 +17,8 @@ resource "aws_instance" "ansible_host" {
 resource "aws_instance" "ansible_master" {
   ami                    = "ami-0090396774e8e756a"
   instance_type          = "t3a.micro"
-  subnet_id              = aws_subnet.main[1].id
-  vpc_security_group_ids = [aws_security_group.allow_ssh_http.id]
+  subnet_id              = var.subnets[1].id
+  vpc_security_group_ids = [var.security_groups.id]
   key_name               = "matan_ansible"
 
   tags = {
@@ -29,6 +27,7 @@ resource "aws_instance" "ansible_master" {
   }
 
   connection {
+    host = aws_instance.ansible_master.public_ip
     type        = "ssh"
     user        = "ec2-user"
     private_key = file("~/.ssh/matan_ansible.pem")

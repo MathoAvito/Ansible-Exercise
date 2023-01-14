@@ -9,12 +9,12 @@ locals {
 }
 
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
 }
 
 resource "aws_subnet" "main" {
-  count                   = 3
+  count                   = var.ansible_hosts + 1
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.${count.index + 1}.0/24"
   map_public_ip_on_launch = true
@@ -30,7 +30,7 @@ resource "aws_route_table" "main" {
 }
 
 resource "aws_route_table_association" "main" {
-  count          = 3
+  count          = var.ansible_hosts + 1
   subnet_id      = aws_subnet.main[count.index].id
   route_table_id = aws_route_table.main.id
 }
