@@ -76,3 +76,47 @@ resource "local_file" "ec2_ips" {
   content  = join("\n", [aws_instance.ansible_host[0].public_ip, aws_instance.ansible_host[1].public_ip])
   filename = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
 }
+
+/* 
+resource "aws_iam_role" "ec2_ami_access" {
+  name = "test_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = {
+    Owner = "Matan Avital"
+  }
+}
+resource "aws_iam_policy" "ami_access" {
+  name   = "ami_access_policy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ec2:DescribeImages",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy_attachment" "ami_access_attachment" {
+  name       = "ami_access_attachment"
+  policy_arn = aws_iam_policy.ami_access.arn
+  roles      = [aws_iam_role.ec2_ami_access.name]
+} */

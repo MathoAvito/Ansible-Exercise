@@ -7,4 +7,5 @@ Ansible Terraform AWS
 - Write your own:
     - Inventory file with the IP adresse of the two Managed Nodes
     - Ansible configuration file
-    - 
+    - Playbook that deploys this webpage- https://raw.githubusercontent.com/MathoAvito/Ansible-Exercise/main/Ansible/Webfile/index.html
+    (note that you'll need to install and start an http server!)
