@@ -35,19 +35,18 @@ resource "aws_instance" "ansible_master" {
     private_key = file("~/.ssh/matan_ansible.pem")
   }
 
+  provisioner "remote-exec" {
+    inline = [
+       "sudo mkdir ~/ansible",
+       "sudo chmod 777 ~/ansible"
+    ]
+  }
+
   provisioner "file" {
     source      = "/home/develeap/.ssh/matan_ansible.pem"
     destination = "/home/ec2-user/.ssh/matan_ansible.pem"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-       "sudo mkdir ~/ansible",
-       "sudo chmod 777 ~/ansible",
-       "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",
-       "export ANSIBLE_CONFIG=/home/ec2-user/ansible/ansible.cfg"
-    ]
-  }
 
   provisioner "file" {
     source      = "/home/develeap/Documents/ansible_exercise/Ansible/ansible.cfg"
@@ -63,7 +62,15 @@ resource "aws_instance" "ansible_master" {
     source      = "/home/develeap/Documents/ansible_exercise/Ansible/playbook.yml"
     destination = "/home/ec2-user/ansible/playbook.yml"
   }
+  
+  provisioner "remote-exec" {
+    inline = [
+       "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",
+       "export ANSIBLE_CONFIG=/home/ec2-user/ansible/ansible.cfg"
+    ]
+  }
 }
+
 
 output "instance_1_ip" {
   value = aws_instance.ansible_host[0].public_ip
