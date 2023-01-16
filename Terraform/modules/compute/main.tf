@@ -1,3 +1,7 @@
+provider "aws" {
+  region = "eu-west-3"
+}
+
 resource "aws_instance" "ansible_host" {
   count           = var.ansible_hosts
   ami             = "ami-0da72130d53f06a73"
@@ -11,8 +15,6 @@ resource "aws_instance" "ansible_host" {
     Owner = "Matan Avital"
   }
 }
-
-
 
 resource "aws_instance" "ansible_master" {
   ami                    = "ami-0090396774e8e756a"
@@ -33,18 +35,18 @@ resource "aws_instance" "ansible_master" {
     private_key = file("~/.ssh/matan_ansible.pem")
   }
 
-   provisioner "remote-exec" {
+  provisioner "file" {
+    source      = "/home/develeap/.ssh/matan_ansible.pem"
+    destination = "/home/ec2-user/.ssh/matan_ansible.pem"
+  }
+
+  provisioner "remote-exec" {
     inline = [
        "sudo mkdir ~/ansible",
        "sudo chmod 777 ~/ansible",
        "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",
        "export ANSIBLE_CONFIG=/home/ec2-user/ansible/ansible.cfg"
     ]
-  }
-
-  provisioner "file" {
-    source      = "/home/develeap/.ssh/matan_ansible.pem"
-    destination = "/home/ec2-user/.ssh/matan_ansible.pem"
   }
 
   provisioner "file" {
@@ -76,47 +78,3 @@ resource "local_file" "ec2_ips" {
   content  = join("\n", [aws_instance.ansible_host[0].public_ip, aws_instance.ansible_host[1].public_ip])
   filename = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
 }
-
-/* 
-resource "aws_iam_role" "ec2_ami_access" {
-  name = "test_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      },
-    ]
-  })
-
-  tags = {
-    Owner = "Matan Avital"
-  }
-}
-resource "aws_iam_policy" "ami_access" {
-  name   = "ami_access_policy"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": "ec2:DescribeImages",
-      "Resource": "*"
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_policy_attachment" "ami_access_attachment" {
-  name       = "ami_access_attachment"
-  policy_arn = aws_iam_policy.ami_access.arn
-  roles      = [aws_iam_role.ec2_ami_access.name]
-} */

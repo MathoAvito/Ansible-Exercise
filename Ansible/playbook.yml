@@ -10,7 +10,7 @@
 
     - name: Copy webpage from URL
       get_url:
-        url: https://raw.githubusercontent.com/MathoAvito/Ansible-Exercise/main/Webfile/index.html
+        url: https://raw.githubusercontent.com/MathoAvito/Ansible-Exercise/main/Ansible/Webfile/index.html
         dest: /var/www/html/index.html
         mode: 0755
 
