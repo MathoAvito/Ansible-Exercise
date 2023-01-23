@@ -22,7 +22,7 @@ resource "aws_instance" "ansible_master" {
   subnet_id              = var.subnets[1].id
   vpc_security_group_ids = [var.security_groups.id]
   key_name               = "matan_ansible"
-
+  /* user_data = file */
   tags = {
     Name  = "ansible_master"
     Owner = "Matan Avital"
@@ -62,7 +62,7 @@ resource "aws_instance" "ansible_master" {
     source      = "/home/develeap/Documents/ansible_exercise/Ansible/playbook.yml"
     destination = "/home/ec2-user/ansible/playbook.yml"
   }
-  
+
   provisioner "remote-exec" {
     inline = [
        "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",

@@ -1,11 +1,25 @@
 Ansible Terraform AWS
 ----------
-- Provision a network infrastructure with Terraform
-- Provision 3 ec2 instances (and anything it they need)
-    - One of the instances would be the Ansible Control Node, make sure to make it into one!
-    - The rest two are the Managed Nodes (Hosts)
+Terraform
+- Provision a network infrastructure:
+    - VPC
+    - Subnets
+    - etc..
+
+- Provision 3 ec2 instances:
+    - One of the instances would be the Ansible Control Node, make sure to install Ansible on it (using user_data/remote-exec)
+    - The rest two are the Managed Nodes (Hosts). you'll need to expose them with a public IP
+
+Ansible
 - Write your own:
-    - Inventory file with the IP adresse of the two Managed Nodes
+  - static:
+    - Inventory file with the IP adresses of the two Managed Nodes- copy the IP addresses of the instan
     - Ansible configuration file
     - Playbook that deploys this webpage- https://raw.githubusercontent.com/MathoAvito/Ansible-Exercise/main/Ansible/Webfile/index.html
+    - Ansible configuration file (ansible.cfg)
     (note that you'll need to install and start an http server!)
+
+After finishing the steps above:
+    - connect to the Ansible Control Node
+    - Run the Playbook
+    - Open the public IP adresses of the instances and check if you can see the website
