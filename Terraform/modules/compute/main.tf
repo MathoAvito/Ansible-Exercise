@@ -10,11 +10,23 @@ resource "aws_instance" "ansible_host" {
   key_name        = "matan_ansible"
   security_groups = [var.security_groups.id]
 
+  /* network_interface {
+    network_interface_id = aws_network_interface.example["${count.index}"].id
+    device_index = count.index
+
+  } */
+
   tags = {
     Name  = "ansible-host_${count.index + 1}"
     Owner = "Matan Avital"
   }
 }
+
+  /* resource "aws_network_interface" "example" {
+    count      = var.ansible_hosts
+    subnet_id  = var.subnets["${count.index}" + 1].id
+    private_ip = "10.0.1.${count.index + 1}"
+  } */
 
 resource "aws_instance" "ansible_master" {
   ami                    = "ami-0090396774e8e756a"
@@ -29,7 +41,7 @@ resource "aws_instance" "ansible_master" {
   }
 
   connection {
-    host = aws_instance.ansible_master.public_ip
+    host        = aws_instance.ansible_master.public_ip
     type        = "ssh"
     user        = "ec2-user"
     private_key = file("~/.ssh/matan_ansible.pem")
@@ -37,8 +49,8 @@ resource "aws_instance" "ansible_master" {
 
   provisioner "remote-exec" {
     inline = [
-       "sudo mkdir ~/ansible",
-       "sudo chmod 777 ~/ansible"
+      "sudo mkdir ~/ansible",
+      "sudo chmod 777 ~/ansible"
     ]
   }
 
@@ -65,23 +77,23 @@ resource "aws_instance" "ansible_master" {
 
   provisioner "remote-exec" {
     inline = [
-       "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",
-       "export ANSIBLE_CONFIG=/home/ec2-user/ansible/ansible.cfg"
+      "sudo chmod 600 /home/ec2-user/.ssh/matan_ansible.pem",
+      "sudo sh -c \"echo 'export ANSIBLE_CONFIG=/home/ec2-user/ansible/ansible.cfg' >> /etc/bashrc\""
     ]
   }
 }
 
 
 output "instance_1_ip" {
-  value = aws_instance.ansible_host[0].public_ip
+  value = aws_instance.ansible_host[0].private_ip
 }
 
 output "instance_2_ip" {
-  value = aws_instance.ansible_host[1].public_ip
+  value = aws_instance.ansible_host[1].private_ip
 }
 
 
 resource "local_file" "ec2_ips" {
-  content  = join("\n", [aws_instance.ansible_host[0].public_ip, aws_instance.ansible_host[1].public_ip])
+  content  = join("\n", [aws_instance.ansible_host[0].private_ip, aws_instance.ansible_host[1].private_ip])
   filename = "/home/develeap/Documents/ansible_exercise/Ansible/hosts"
 }
