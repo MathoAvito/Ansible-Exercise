@@ -10,23 +10,11 @@ resource "aws_instance" "ansible_host" {
   key_name        = "matan_ansible"
   security_groups = [var.security_groups.id]
 
-  /* network_interface {
-    network_interface_id = aws_network_interface.example["${count.index}"].id
-    device_index = count.index
-
-  } */
-
   tags = {
     Name  = "ansible-host_${count.index + 1}"
     Owner = "Matan Avital"
   }
 }
-
-  /* resource "aws_network_interface" "example" {
-    count      = var.ansible_hosts
-    subnet_id  = var.subnets["${count.index}" + 1].id
-    private_ip = "10.0.1.${count.index + 1}"
-  } */
 
 resource "aws_instance" "ansible_master" {
   ami                    = "ami-0090396774e8e756a"
@@ -34,7 +22,6 @@ resource "aws_instance" "ansible_master" {
   subnet_id              = var.subnets[1].id
   vpc_security_group_ids = [var.security_groups.id]
   key_name               = "matan_ansible"
-  /* user_data = file */
   tags = {
     Name  = "ansible_master"
     Owner = "Matan Avital"
