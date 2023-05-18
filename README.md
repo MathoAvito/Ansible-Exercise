@@ -30,25 +30,7 @@ If not installed, you need to install them according to your OS specifications. 
 
 ## Instructions <a name="instructions"></a>
 
-This exercise consists of the following steps:
-
-1. Provision network and compute infrastructure on AWS using Terraform.
-
-   Navigate to the Terraform directory and apply the changes:
-
-   ```bash
-   terraform init
-   terraform apply
-    ```
-2. Set up an Ansible control node on one of the EC2 instances.
-
-3. Configure the other EC2 instances as managed nodes (hosts).
-
-4. Deploy a simple webpage on the managed nodes using Ansible.
-
-   ```bash
-   ansible-playbook playbook.yml
-    ```
+Check out the [instructions](instructions-ansible-tf.md) for this exercise.
 ## Project Structure <a name="project-structure"></a>
 
 The project has the following structure: 
